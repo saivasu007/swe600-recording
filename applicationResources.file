@@ -1,5 +1,5 @@
 process.env.port = 1337
-mongodb.connect.url = mongodb://heroku_7d9nm4j8:or2qd4f8n9v6hqcbrmocuvo7tj@ds025449.mlab.com:25449/heroku_7d9nm4j8
+mongodb.connect.url = mongodb://localhost:27017/Quiz
 app.email.transport = SMTP
 #SMTP.service = Gmail
 SMTP.service.user = bigbangASQ@gmail.com
