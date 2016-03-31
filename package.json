@@ -1,5 +1,5 @@
 {
-  "name": “swe600_recording”,
+  "name": “swe-recording”,
   "version": "1.0.0",
   "description": "For Advanced Software Engineering project portal.",
   "main": "server.js",
