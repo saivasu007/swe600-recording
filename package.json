@@ -1,7 +1,7 @@
 {
-  "name": “swe600-recording”,
+  "name": “swe600_recording”,
   "version": "1.0.0",
-  "description": "",
+  "description": "For Advanced Software Engineering project portal.",
   "main": "server.js",
   "dependencies": {
     "async": "^1.4.2",
