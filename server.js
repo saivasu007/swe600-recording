@@ -123,7 +123,7 @@ passPort.use(new facebookStrategy({
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL
   },function(token, refreshToken, profile, done) {
-          userModel.findOne({email:profile.emails[0].value}, function(err, user) {
+          userModel.findOne({email:profile.username}, function(err, user) {
         	  console.log("Hello");
               if (err) {
             	  console.debug("err"+err);
