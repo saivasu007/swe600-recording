@@ -138,10 +138,13 @@ passPort.use(new facebookStrategy({
                   // if there is no user found with that facebook id, create them
                   var newUser = new userModel();
                   // set all of the facebook information in our user model
-                  //newUser._id  = profile.id;                
+                  //newUser._id  = profile.id;   
+		  console.log(“name ”+ profile.username);     
+		  console.log(“name ”+ profile.name.givenName); 
+		  console.log(“name ”+ profile.name.familyName);         
                   newUser.firstName  = profile.name.givenName;
                   newUser.lastName = profile.name.familyName; 
-                  newUser.email = profile.emails[0].value;
+                  newUser.email = profile.username;
                   newUser.role = "user";
                   newUser.activeIn = "Y";
                   newUser.subscriber = "No";
