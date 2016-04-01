@@ -139,9 +139,9 @@ passPort.use(new facebookStrategy({
                   var newUser = new userModel();
                   // set all of the facebook information in our user model
                   //newUser._id  = profile.id;   
-		  console.log(“name ”+ profile.username);     
-		  console.log(“name ”+ profile.name.givenName); 
-		  console.log(“name ”+ profile.name.familyName);         
+		  console.log("name "+ profile.username);     
+		  console.log("name "+ profile.name.givenName); 
+		  console.log("name "+ profile.name.familyName);         
                   newUser.firstName  = profile.name.givenName;
                   newUser.lastName = profile.name.familyName; 
                   newUser.email = profile.username;
