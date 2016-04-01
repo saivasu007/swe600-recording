@@ -163,7 +163,7 @@ passPort.use(new facebookStrategy({
 passPort.use(new GoogleStrategy({
 	  clientID: config.google.clientID,
 	  clientSecret: config.google.clientSecret,
-	  returnURL: config.google.returnURL
+	  callbackURL: config.google.returnURL
 	  },
 	  function(request, accessToken, refreshToken, profile, done) {
 	    userModel.findOne({email: profile.email }, function(err, user) {
@@ -173,11 +173,16 @@ passPort.use(new GoogleStrategy({
 	      if (!err && user !== null) {
 	        done(null, user);
 	      } else {
-	        user = new userModel({
-	          oauthID: profile.id,
-	          name: profile.displayName,
-	          created: Date.now()
-	        });
+	        var user = new userModel();
+              	// set all of the facebook information in our user model
+              	//newUser._id  = profile.id;                
+              	user.firstName  = profile.name.givenName;
+              	user.lastName = profile.name.familyName; 
+              	user.email = profile.emails[0].value;
+              	user.role = "user";
+              	user.activeIn = "Y";
+              	user.subscriber = "No";
+              	user.authType = "google";
 	        user.save(function(err) {
 	          if(err) {
 	            console.log(err);  // handle errors!
@@ -303,13 +308,16 @@ app.get('/auth/google',
 		  passPort.authenticate('google', { scope: [
 		    'https://www.googleapis.com/auth/plus.login',
 		    'https://www.googleapis.com/auth/plus.profile.emails.read'
-		  ] }
-));
+		  ] }),function(req, res) {
+		    	var user = req.user;
+		    	res.json(user);
+});
 
 app.get('/auth/google/callback',
 		  passPort.authenticate('google', { failureRedirect: '/' }),
 		  function(req, res) {
-		    res.redirect('/account');
+		    var user = req.user;
+		    res.json(user);
 });
 
 app.get('/auth/linkedin',
