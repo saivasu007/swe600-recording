@@ -289,14 +289,14 @@ app.post('/login', passPort.authenticate('local'),function(req, res) {
 });
 
 app.get('/auth/facebook', passPort.authenticate('facebook'), function(req, res, next){
-	/*var user = req.user;
-	res.json(user);*/
+	var user = req.user;
+	res.json(user);
 });
 
 app.get('/auth/facebook/callback',
 	passPort.authenticate('facebook', { failureRedirect: '/' , successRedirect : '/home' }),function(req, res, next) {
-	/*var user = req.user;
-	res.json(user);*/
+	var user = req.user;
+	res.json(user);
 });
 
 app.get('/auth/google',
