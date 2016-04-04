@@ -548,14 +548,139 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 
 	$rootScope.wrong = 0;
 	$rootScope.report = {type:'',wrong:[]};
-	$scope.exam = function (){
-		$rootScope.submited = false;
-		$http.get('/quiz').success(function (response) {
-			$rootScope.questions = response;			
-			$location.path('/exam/0');
-		});
+	$scope.disableStop = true;
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+	var videoRecorder;
+    var audioRecorder;
+    var videoElement = document.querySelector('video');
+    var isRecordOnlyAudio = !!navigator.mozGetUserMedia;
+    var recordRTC;
+	var video = document.querySelector('video');
+	//var preview = document.getElementById('videoPreview');
+	$('#preview').hide();
+	$('#btn-save-disk').hide();
+    $('#btn-open-new').hide();
+	
+    $scope.random = function getRandomStr() {
+        if (window.crypto) {
+            var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                token = '';
+            for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
+            return token;
+        } else {
+            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        }
+    }
+	
+	$scope.initRecorder = function () {
+		//navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+		if (navigator.getUserMedia) {
+			navigator.getUserMedia({ audio: true, video: { width: 600, height: 450 } },
+			function(stream) {
+			var video = document.querySelector('video');
+			video.src = window.URL.createObjectURL(stream);
+			video.onloadedmetadata = function(e) {
+			video.play();
+			};
+			},
+			function(err) {
+			console.log("The following error occurred: " + err.name);
+			}
+			);
+		} else {
+			console.log("getUserMedia not supported");
+		}
+	}
+	
+	$scope.record = function () {
+        $scope.disable = true;
+        $scope.disableStop = false;
+        $('#btn-save-disk').hide();
+        $('#btn-open-new').hide();
+        
+        if (navigator.getUserMedia) {
+			navigator.getUserMedia({ audio: true, video: { width: 600, height: 450 } },
+			function(stream) {
+			video = document.querySelector('video');
+			video.src = window.URL.createObjectURL(stream);
+			video.onloadedmetadata = function(e) {
+				video.play();
+			};
+			recordRTC = RecordRTC(stream,{type:"video",mimeType: 'video/webm'});
+			recordRTC.initRecorder();
+		    recordRTC.startRecording();
+			},
+			function(err) {
+			alert("error "+err);
+			console.log("The following error occurred: " + err.name);
+			}
+			);
+		} else {
+			console.log("getUserMedia not supported");
+		}
+       
 	};
 	
+	$scope.stopRecord = function () {
+		$scope.disable = false;
+        $scope.disableStop = true;
+        recordRTC.stopRecording(function (audioVideoWebMURL) {
+        	//$('#preview').show();
+        	//preview.src = audioVideoWebMURL;
+        	video.src = audioVideoWebMURL;
+            var recordedBlob = recordRTC.getBlob();
+            $('#btn-save-disk').show();
+            $('#btn-open-new').show();
+            recordRTC.getDataURL(function(dataURL) {
+            	//window.open( recordRTC.toURL() );
+            	//recordRTC.save('abcdefg');
+            	uploadFile(dataURL);
+            });
+        });
+	};
+	
+	var fileName;
+	function uploadFile(videoDataURL) {
+		fileName = $scope.random();
+		var files = {};
+        files.video = {
+                name: fileName + '.webm',
+                type: 'video/webm',
+                contents: videoDataURL
+        };
+        uploadContents('/upload', JSON.stringify(files), function(_fileName) {
+            var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+            alert(href + 'upload/' + _fileName);
+            //video.src = href + 'upload/' + _fileName;
+            //video.play();
+            /* Create the blob URL hyperlink
+            var h4 = document.createElement('h4');
+            h4.innerHTML = '<a href="' + video.src + '">' + video.src + '</a>';
+            document.body.appendChild(h4);
+            */
+        });
+	}
+	
+    function uploadContents(url, data, callback) {
+    	alert("Upload");
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                callback(request.responseText);
+            }
+        };
+        request.open('POST', url);
+        request.send(data);
+    }
+	
+	$scope.saveDisk = function () {
+		  var fileName = $scope.random();
+          recordRTC.save(fileName);
+	};
+	
+	$scope.openNew = function () {
+		window.open(recordRTC.toURL());
+	};
 
 	$scope.logout = function () {
 		$http.post('/logout',$rootScope.user).success(function () {
@@ -573,23 +698,6 @@ app.controller('aboutCtrl', function ($q, $scope, $rootScope, $http, $location) 
 			$rootScope.currentUser = undefined;
 			$rootScope.user = undefined;
 		})
-	};
-
-	$scope.mouseover1 = function () {
-		var oDiv1=document.getElementById("harry");
-		startMove(oDiv1, {opacity: 100});
-	};
-	$scope.mouseover2 = function () {
-		var oDiv2=document.getElementById("jaime");
-		startMove(oDiv2, {opacity: 100});
-	};
-	$scope.mouseover3 = function () {
-		var oDiv3=document.getElementById("neeru");
-		startMove(oDiv3, {opacity: 100});
-	};
-	$scope.mouseover4 = function () {
-		var oDiv4=document.getElementById("nikitha");
-		startMove(oDiv4, {opacity: 100});
 	};
 
 	function getStyle(obj, name) {
@@ -701,6 +809,20 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/register', {
 			templateUrl: 'partials/register.html',
 			controller: 'registerCtrl'
+		}).
+		when('/record', {
+			templateUrl: 'partials/record.html',
+			controller: 'homeCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/list', {
+			templateUrl: 'partials/videos.html',
+			controller: 'homeCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
 		}).
 		when('/404', {
 			templateUrl: 'partials/404.html'

@@ -1,3 +1,5 @@
+<ng-form name="recordForm">
+<!-- data-ng-init="initRecorder()" -->
 <div class="animated fadeInUp">
 	<!-- Header -->
 	<header>
@@ -14,6 +16,8 @@
 					<br>
 					<h4>Welcome, {{currentUser.firstName}},{{currentUser.lastName}}</h4>
 					<span class="color customLink" ng-if="currentUser.login=='portal'"><a href="/changePassword">Change Password</a> |</span>
+					<span class="color customLink"><a href="/home">Home</a></span> |
+					<span class="color customLink"><a href="/list">Videos List</a></span> |
 					<span class="color customLink"><a href="/about">About Project</a></span> |
 					<span class="color customLink"><a href="" ng-click="logout()">Logout</a></span>
 				</div>
@@ -26,16 +30,32 @@
 			<!-- Content -->
 			<hr>
 			<div style="text-align: center">
-				<br><br><br>
-				<!-- <button ng-click="exam()" class="btn btn-info customBtn"><span class="customSpan">Exam</span></button> -->
-				<a href="/record"><button class="btn btn-info customBtn"><span class="customSpan">Record Video</span></button></a>
-				<br><br><br>
-				<a href="/list"><button class="btn btn-info customBtn"><span class="customSpan">List Videos</span></button></a>
-				<br><br><br>
+			        <div>
+			            <button id="btn-start-recording" ng-click="record()" ng-disabled="disable" class="btn btn-info">Start Recording</button>
+			            <button id="btn-stop-recording" ng-disabled="disableStop" ng-click="stopRecord()" class="btn btn-warning">Stop Recording</button>
+			        </div>
+			        <br/>
+					<div style="border-style:double;border-width:4px;border-color:#5BC0DE;width:610px;height:458px;margin-left: auto;margin-right: auto;">
+					<p>
+            			<video style="background:#000" preload="auto" poster="" width="600" height="450" controls=""></video>
+        			</p>
+        			</div>
+        			<br/>
+        			<p>
+        			<button id="btn-save-disk" ng-click="saveDisk()" class="btn btn-info">Save To Disk</button>
+			            <button id="btn-open-new" ng-click="openNew()" class="btn btn-info">Open New Tab</button>
+        			</p>
+        			<!-- 
+        			<div id="preview" style="border-style:double;border-width:4px;border-color:#5BC0DE;width:610px;height:458px;margin-left: auto;margin-right: auto;">
+        				<video id="videoPreview"></video>
+        			</div>
+        			-->
 			</div>
 			<hr>
 		</div>
 	</div>
+
+
 
 	<!-- Footer -->
 	<footer>
@@ -43,7 +63,7 @@
 			<div class="row">
 				<div class="col-md-12">
 					<div style="text-align: center" class="copy">
-						<h5>SWE-600 Advanced Software Engineering Project</h5>
+						<h5>SWE-600 Advance Software Engineering Project</h5>
 						<p>&copy; <a href="/about">2016 International Technological University</a></p>
 						<p>Developed by <strong>Srinivas Thungathurti (89589)</strong> Under the Guidance of Professor <a href="https://www.linkedin.com/in/mobility" target="_blank"><strong>Mamoun Abu-Samaha</strong></a></p>
 					</div>
@@ -53,3 +73,4 @@
 		</div>
 	</footer>
 </div>
+</ng-form>
