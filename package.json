@@ -24,7 +24,8 @@
     "password-reset": "^0.1.4",
     "passport-linkedin-oauth2": "^1.4.0",
     "path":"^0.12.7",
-    "properties-reader":"^0.0.13"
+    "properties-reader":"^0.0.13",
+    "recordrtc":"^5.3.0"
   },
   "devDependencies": {},
   "scripts": {
