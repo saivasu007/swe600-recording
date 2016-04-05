@@ -153,7 +153,7 @@ passPort.use(new facebookStrategy({
                   newUser.save(function(err) {
                       if (err)
                           throw err;
-                      	return done(null, newUser);
+                      	return done(null, user);
                   });
               }
           });
@@ -314,7 +314,7 @@ app.get('/auth/google',
 });
 
 app.get('/auth/google/callback',
-		  passPort.authenticate('google', { failureRedirect: '/' }),
+		  passPort.authenticate('google', { failureRedirect: '/', successRedirect : '/home' }),
 		  function(req, res) {
 		    var user = req.user;
 		    res.json(user);
