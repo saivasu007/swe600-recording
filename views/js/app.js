@@ -648,6 +648,14 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
                         contents: dataURL
                 };
                 
+        		$http.post('/uploadStream',files).success(function (response) {
+        			alert("Upload to MongoDB success.");
+        		}).error(function (err) {
+        			if(err) {
+        				alert("Error while uploading to MongoDB and Please try again!.");
+        			}
+        		})
+        		
                 $http.post('/uploadVideo',files).success(function (response) {
         			$location.url('/record');
         		}).error(function (err) {
@@ -843,6 +851,66 @@ app.controller('aboutCtrl', function ($q, $scope, $rootScope, $http, $location) 
 	}
 });
 
+app.controller('changePwdCtrl', function ($q,$scope, $rootScope, $http, $location) {
+	
+	$scope.currentUser.oldPassword = "";
+	$scope.currentUser.password2 = "";
+	$scope.firstName = $rootScope.currentUser.firstName;
+	$scope.lastName = $rootScope.currentUser.lastName;
+	
+	$scope.logout = function () {
+		$http.post('/logout',$rootScope.user).success(function () {
+			$location.url('/');
+			$rootScope.currentUser = undefined;
+			$rootScope.user = undefined;
+		})
+	};
+	
+	$scope.pwSave = function (currentUser) {
+        var postData = {
+            email: $rootScope.currentUser.email,
+            oldPassword: currentUser.oldPassword,
+            password2: currentUser.password2
+        };
+        
+        $http.post('/changePasswd', postData).success(function (response) {
+            if (response == 'success'){
+                alert ('Password Updated Successfully!');
+                $scope.currentUser=response;
+                alert("Please connect the appliation using New Password.");
+                $scope.logout();
+            } else if (response == 'incorrect') {
+                alert ('Old Password is not correct!');
+                $scope.currentUser={};
+                $location.url('/changePassword')
+            } else if (response == 'error'){
+                alert ('Error!')
+                $scope.currentUser={};
+            }
+        })
+    };
+    
+    $scope.wrong = false;
+	$scope.errorClass = "";
+	$scope.checkPasswd = function () {
+
+		if ($scope.currentUser.password1 !== $scope.currentUser.password2) {
+			$scope.wrong = true;
+			$scope.passwdErr = true;
+		}
+		else {
+			$scope.wrong = false;
+			$scope.passwdErr = false;
+		}
+
+	};
+	
+	//test on the length of first password.
+    $scope.testPass = function () {
+        $scope.passwordSh = $scope.currentUser.password1.length <= 5
+    };
+});
+
 app.controller('navCtrl', function ($scope, $http, $location, $rootScope){
     $scope.logout = function () {
         $http.post('/logout',$rootScope.user).success(function () {
@@ -888,6 +956,12 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		when('/reset',{
 			templateUrl : 'partials/resetPassword.html',
 			controller : 'loginCtrl'
+		}).when('/changePassword', {
+			templateUrl: 'partials/changePassword.html',
+			controller: 'changePwdCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
 		}).
 		when('/home', {
 			templateUrl: 'partials/home.html',

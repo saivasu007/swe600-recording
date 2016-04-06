@@ -33,8 +33,10 @@ var userModel = require('./models/userModel.js');
 var userMediaModel = require('./models/userMediaModel.js');
 var fs  = require('fs');
 var ejs = require('ejs');
-var Grid = require('gridfs-stream');
-var GridFS = Grid(mongoose.connection.db, mongoose.mongo);
+var MongoClient = require('mongodb').MongoClient,
+GridStore = require('mongodb').GridStore,
+ObjectID = require('mongodb').ObjectID;
+
 
 //Added properties file to store and retrieve the static information.
 var emailTransport = properties.get('app.email.transport');
@@ -303,7 +305,7 @@ app.get('/auth/facebook', passPort.authenticate('facebook',{ scope : 'email' }),
 });
 
 app.get('/auth/facebook/callback',
-	passPort.authenticate('facebook', { failureRedirect: '/' , successRedirect : '/home', scope : 'email' }),function(req, res, next) {
+	passPort.authenticate('facebook', { failureRedirect: '/' , successRedirect : '/home', scope: 'email' }),function(req, res, next) {
 	var user = req.user;
 	res.json(user);
 });
@@ -336,6 +338,19 @@ app.get('/auth/linkedin/callback',
 		  function(req, res) {
 			var user = req.user;
 			res.json(user);
+});
+
+app.post('/uploadStream', function(req, res) {
+	console.log("uploading stream to MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, null, "w");
+		  gridStore.open(function(err, gridStore) {
+		    gridStore.write(req.body.contents, function(err, gridStore) {
+		      gridStore.close(function(err, result) {
+		      });
+		   });
+		  });
+		});
 });
 
 app.post('/uploadVideo', function(req, res) {
@@ -502,6 +517,56 @@ app.post('/reset', function(req, res) {
       });
 });
 //End Forgot Password functionality here.
+
+//Change user password for local authenticated users.
+app.post('/changePasswd', function (req, res) {
+	userModel.find({email:req.body.email, password:encrypt(req.body.oldPassword)}, function (err, result) {
+        if (result && result.length != 0) {
+            userModel.update({email:req.body.email},{$set:{password:encrypt(req.body.password2)}},false,function (err, num){
+                if (num.ok == 1){
+                	console.log('success');
+                	//sendMail(null,'changePassword',decrypt(req.body.password2));
+                	//send email after successful registration.
+    				var smtpTransport = mailer.createTransport(emailTransport, {
+    					service : "Gmail",
+    					auth : {
+    						user : serviceUser,
+    						pass : servicePasswd
+    					}
+    				});
+    				var data = {
+    			            password: req.body.password2,
+    			            name: result.firstName,
+    			            url: "http://"+req.headers.host+"/login"
+    			            
+    				}
+    				var mail = {
+    					from : emailFrom,
+    					to : req.body.email,
+    					subject : emailChangePwdSubject,
+    					html: renderTemplate(chgPwdTemplate,data)
+    				}
+
+    				smtpTransport.sendMail(mail, function(error, response) {
+    					if (error) {
+    						console.log(error);
+    					} else {
+    						console.log("Message sent: " + response.message);
+    					}
+    				   smtpTransport.close();
+    				});
+    			    //End email communication here.
+                    res.send('success')
+                } else {
+                	console.log('error');
+                    res.send('error')
+                }
+            })
+        } else {
+            res.send('incorrect')
+        }
+    })
+});
 
 app.all('/*', function(req, res, next) {
 	// Just send the index.html for other files to support HTML5Mode
