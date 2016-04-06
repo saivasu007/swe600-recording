@@ -129,6 +129,7 @@ passPort.use(new facebookStrategy({
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL,
 	  passReqToCallback : true,
+	  enableProof: true,
 	  profileFields: ['id', 'displayName', 'photos', 'email']
   },function(token, refreshToken, profile, done) {
 	      console.log("facebook profile is "+profile+" ");
