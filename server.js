@@ -128,8 +128,7 @@ passPort.use(new facebookStrategy({
 	clientID: config.facebook.clientID,
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL
-  },function(token, refreshToken, profile, done) {
-	      console.debug("Facebook Username "+profile.username);
+  },function(token, refreshToken, profile, done) {	      
 	      console.log("Facebook Username "+profile.username);
           userModel.findOne({email:profile.username}, function(err, user) {
         	  console.log("Hello");
