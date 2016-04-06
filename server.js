@@ -368,7 +368,7 @@ app.post('/uploadVideo', function(req, res) {
 
     fileBuffer = new Buffer(req.body.contents, "base64");
     fs.writeFileSync(filePath, fileBuffer);
-    res.sendStatus('success');
+    res.sendStatus(200);
 });
 
 app.post('/logout', function(req, res) {
