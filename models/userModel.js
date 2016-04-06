@@ -1,7 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
 
-//Updated by Srinivas Thungathurti for ASQ Upgrade 2.0
 var userSchema = new mongoose.Schema({
     email: String,
     password: String,
@@ -18,13 +17,12 @@ var userSchema = new mongoose.Schema({
     subscriber: String,
     birthDate: String,
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    authType: String
 });
 
 userSchema.methods.validPassword = function( pwd ) {
     return ( this.password === pwd );
 };
-
-//End Changes for ASQ Upgrade 2.0 here.
 
 module.exports = mongoose.model('userModel', userSchema);

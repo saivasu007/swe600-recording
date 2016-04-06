@@ -433,6 +433,7 @@ app.controller('registerCtrl', function($scope, $location, $rootScope, $http) {
 			$scope.user.subscriber = "No";
 			$scope.user.state = $scope.selectedState;
 			$scope.user.birthDate = moment($scope.user.birthDate).format('MM/DD/YYYY');
+			$scope.user.authType = "local";
 
 			$http.post('/register', user).success(function (response) {
 				if (response != "0") {
