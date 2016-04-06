@@ -35,7 +35,6 @@ var fs  = require('fs');
 var ejs = require('ejs');
 var Grid = require('gridfs-stream');
 var GridFS = Grid(mongoose.connection.db, mongoose.mongo);
-var multer = require('multer');
 
 //Added properties file to store and retrieve the static information.
 var emailTransport = properties.get('app.email.transport');
