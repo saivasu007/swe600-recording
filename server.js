@@ -129,8 +129,9 @@ passPort.use(new facebookStrategy({
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL,
 	  passReqToCallback : true,
-      profileFields: ['id', 'emails', 'name']
+	  profileFields: ['id', 'displayName', 'photos', 'email']
   },function(token, refreshToken, profile, done) {
+	      console.log("facebook profile is "+profile+" "+profile.toSource());
 	      console.log("Facebook email "+profile.emails[0].value);
           userModel.findOne({email:profile.emails[0].value}, function(err, user) {
         	  console.log("Hello");
