@@ -130,8 +130,7 @@ passPort.use(new facebookStrategy({
 	  callbackURL: config.facebook.callbackURL,
 	  passReqToCallback : true,
       profileFields: ['id', 'emails', 'name']
-  },function(token, refreshToken, profile, done) {	      
-	      console.log("Facebook Username "+profile.username);
+  },function(token, refreshToken, profile, done) {
 	      console.log("Facebook email "+profile.emails[0].value);
           userModel.findOne({email:profile.emails[0].value}, function(err, user) {
         	  console.log("Hello");
@@ -148,12 +147,12 @@ passPort.use(new facebookStrategy({
                   // if there is no user found in the application with that facebook user-id then create them.
                   var newUser = new userModel();
                   // Set all of the facebook information in application user model.
-                  console.log("name "+ profile.username);     
-                  console.log("name "+ profile.name.givenName); 
-                  console.log("name "+ profile.name.familyName);         
+                     
+                  console.log("givenName "+ profile.name.givenName); 
+                  console.log("FamilyName "+ profile.name.familyName);         
                   newUser.firstName  = profile.name.givenName;
                   newUser.lastName = profile.name.familyName; 
-                  newUser.email = profile.username;
+                  newUser.email = profile.emails[0].value;
                   newUser.role = "user";
                   newUser.activeIn = "Y";
                   newUser.subscriber = "No";
