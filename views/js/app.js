@@ -88,7 +88,6 @@ app.controller('indexCtrl', function($scope, ObserverService, $location, $anchor
 app.controller('registerCtrl', function($scope, $location, $rootScope, $http) {
 	$scope.error = false;
 	$scope.checkEmail = false;
-	//Added by Srinivas Thungathurti for ASQ Upgrade 2.0.
 	$scope.passwordErr = false;
     $scope.usernameErr = false;
     $scope.passwordShort = false;
@@ -649,7 +648,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
                 };
                 
         		$http.post('/uploadStream',files).success(function (response) {
-        			alert("Upload to MongoDB success.");
+        			alert("Upload to MongoDB :: Success");
         		}).error(function (err) {
         			if(err) {
         				alert("Error while uploading to MongoDB and Please try again!.");
@@ -703,33 +702,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 				alert("Error while uploading file to server and Please try again!.");
 			}
 		})
-            
-        /*
-        uploadContents('/upload', JSON.stringify(files), function(_fileName) {
-            var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
-            alert(href + 'upload/' + _fileName);
-            //video.src = href + 'upload/' + _fileName;
-            //video.play();
-            /* Create the blob URL hyperlink
-            var h4 = document.createElement('h4');
-            h4.innerHTML = '<a href="' + video.src + '">' + video.src + '</a>';
-            document.body.appendChild(h4);
-            */
-        /*});*/
 	}
-	/*
-    function uploadContents(url, data, callback) {
-    	alert("Upload");
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function() {
-            if (request.readyState == 4 && request.status == 200) {
-                callback(request.responseText);
-            }
-        };
-        request.open('POST', url);
-        request.send(data);
-    }
-    */
 	
 	$scope.saveDisk = function () {
 		  var fileName = $scope.random();

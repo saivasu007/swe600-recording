@@ -343,30 +343,26 @@ app.get('/auth/linkedin/callback',
 app.post('/uploadStream', function(req, res) {
 	console.log("uploading stream to MongoDB");
 	MongoClient.connect(mongodbUrl, function(err, db) {
-		  var gridStore = new GridStore(db, null, "w");
+		  var gridStore = new GridStore(db, new ObjectID(),req.user.firstName+"_"+req.body.name, "w",{
+			  "content_type": "video/webm",
+			  "metadata":{
+			      "author": "SrinivasT"
+			  },
+			  "chunk_size": 1024*4
+			  });
 		  gridStore.open(function(err, gridStore) {
 		    gridStore.write(req.body.contents, function(err, gridStore) {
 		      gridStore.close(function(err, result) {
 		      });
 		   });
 		  });
+		  db.close();
 		});
+	console.log("Finished stream upload to MongoDB");
+	res.sendStatus(200);
 });
 
 app.post('/uploadVideo', function(req, res) {
-	/*
-	console.log(req.body);
-	var newRecord = new userMediaModel(req.body);
-	newRecord.save(function(err, result) {
-		if (err) {
-			console.log(err);
-			res.send('error')
-		} else {
-			console.log(result);
-			res.send(result)
-		}
-	})
-	*/
 	var fileRootName = req.body.name.split('.').shift(),
     fileExtension = req.body.name.split('.').pop(),
     filePathBase = './upload' + '/',
@@ -404,7 +400,7 @@ app.get('/loggedin', function(req, res) {
 	}
 });
 
-//Added for ASQ Upgrade2.0.Forgot Password functionality.
+//Added for Forgot Password functionality.
 app.post('/forgot', function(req, res) {
 	      crypto.randomBytes(20, function(err, buf) {
 	        token = buf.toString('hex');
