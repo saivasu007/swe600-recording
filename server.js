@@ -125,17 +125,12 @@ passPort.deserializeUser(function(user, done) {
 
 //Facebook Social Login
 passPort.use(new facebookStrategy({
-	clientID: config.facebook.clientID,
+	  clientID: config.facebook.clientID,
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL,
-	  passReqToCallback : true,
-	  enableProof: true,
-	  profileFields: ['id', 'displayName', 'photos', 'email']
+	  profileFields: ['id', 'displayName', 'photos', 'email','name']
   },function(token, refreshToken, profile, done) {
-	      console.log("facebook profile is "+profile+" ");
-	      console.log("Facebook email "+profile.emails[0].value);
           userModel.findOne({email:profile.emails[0].value}, function(err, user) {
-        	  console.log("Hello");
               if (err) {
             	  console.debug("err"+err);
             	  console.log(err);
@@ -148,16 +143,14 @@ passPort.use(new facebookStrategy({
               } else {
                   // if there is no user found in the application with that facebook user-id then create them.
                   var newUser = new userModel();
-                  // Set all of the facebook information in application user model.
-                     
-                  console.log("givenName "+ profile.name.givenName); 
-                  console.log("FamilyName "+ profile.name.familyName);         
+                  // Set all of the facebook information in application user model.        
                   newUser.firstName  = profile.name.givenName;
                   newUser.lastName = profile.name.familyName; 
                   newUser.email = profile.emails[0].value;
                   newUser.role = "user";
                   newUser.activeIn = "Y";
                   newUser.subscriber = "No";
+                  newUser.authType = "facebook";
                   console.log("Before saving user info");
                   // save our user to the database
                   newUser.save(function(err) {
@@ -231,6 +224,7 @@ passPort.use(new LinkedinStrategy({
               newUser.role = "user";
               newUser.activeIn = "Y";
               newUser.subscriber = "No";
+              newUser.authType = "linkedin";
               // save our user to the database
               newUser.save(function(err) {
 	          if(err) {
@@ -303,13 +297,13 @@ app.post('/login', passPort.authenticate('local'),function(req, res) {
 	res.json(user);
 });
 
-app.get('/auth/facebook', passPort.authenticate('facebook',{ scope : ['email'] }), function(req, res, next){
+app.get('/auth/facebook', passPort.authenticate('facebook',{ scope : 'email' }), function(req, res, next){
 	var user = req.user;
 	res.json(user);
 });
 
 app.get('/auth/facebook/callback',
-	passPort.authenticate('facebook', { failureRedirect: '/' , successRedirect : '/home' }),function(req, res, next) {
+	passPort.authenticate('facebook', { failureRedirect: '/' , successRedirect : '/home', scope : 'email' }),function(req, res, next) {
 	var user = req.user;
 	res.json(user);
 });
