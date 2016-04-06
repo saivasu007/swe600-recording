@@ -30,8 +30,12 @@ var mongodbUrl = properties.get('mongodb.connect.url');
 mongoose.connect(mongodbUrl);
 // models
 var userModel = require('./models/userModel.js');
+var userMediaModel = require('./models/userMediaModel.js');
 var fs  = require('fs');
 var ejs = require('ejs');
+var Grid = require('gridfs-stream');
+var GridFS = Grid(mongoose.connection.db, mongoose.mongo);
+var multer = require('multer');
 
 //Added properties file to store and retrieve the static information.
 var emailTransport = properties.get('app.email.transport');
@@ -70,9 +74,12 @@ function renderTemplate (name, data) {
 }
 
 // register middle-ware
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+	limit: '50mb'
+}));
 app.use(bodyParser.urlencoded({
-	extended : true
+	extended : true,
+	limit: '50mb'
 }));
 app.use(cookieParser());
 app.use(session({
@@ -123,6 +130,8 @@ passPort.use(new facebookStrategy({
 	  clientSecret: config.facebook.clientSecret,
 	  callbackURL: config.facebook.callbackURL
   },function(token, refreshToken, profile, done) {
+	      console.debug("Facebook Username "+profile.username);
+	      console.log("Facebook Username "+profile.username);
           userModel.findOne({email:profile.username}, function(err, user) {
         	  console.log("Hello");
               if (err) {
@@ -132,16 +141,15 @@ passPort.use(new facebookStrategy({
                   return done(err);
               }
               if (user) {
-            	  console.log("Whtz up");
-                  return done(null, user); // user found, return that user
+            	  console.log("User exists in application");
+                  return done(null, user); // If user found then return the same user.
               } else {
-                  // if there is no user found with that facebook id, create them
+                  // if there is no user found in the application with that facebook user-id then create them.
                   var newUser = new userModel();
-                  // set all of the facebook information in our user model
-                  //newUser._id  = profile.id;   
-		  console.log("name "+ profile.username);     
-		  console.log("name "+ profile.name.givenName); 
-		  console.log("name "+ profile.name.familyName);         
+                  // Set all of the facebook information in application user model.
+                  console.log("name "+ profile.username);     
+                  console.log("name "+ profile.name.givenName); 
+                  console.log("name "+ profile.name.familyName);         
                   newUser.firstName  = profile.name.givenName;
                   newUser.lastName = profile.name.familyName; 
                   newUser.email = profile.username;
@@ -332,6 +340,39 @@ app.get('/auth/linkedin/callback',
 		  function(req, res) {
 			var user = req.user;
 			res.json(user);
+});
+
+app.post('/uploadVideo', function(req, res) {
+	/*
+	console.log(req.body);
+	var newRecord = new userMediaModel(req.body);
+	newRecord.save(function(err, result) {
+		if (err) {
+			console.log(err);
+			res.send('error')
+		} else {
+			console.log(result);
+			res.send(result)
+		}
+	})
+	*/
+	var fileRootName = req.body.name.split('.').shift(),
+    fileExtension = req.body.name.split('.').pop(),
+    filePathBase = './upload' + '/',
+    fileRootNameWithBase = filePathBase + fileRootName,
+    filePath = fileRootNameWithBase + '.' + fileExtension,
+    fileID = 2,
+    fileBuffer;
+    req.body.contents = req.body.contents.split(',').pop();
+    
+    while (fs.existsSync(filePath)) {
+        filePath = fileRootNameWithBase + '(' + fileID + ').' + fileExtension;
+        fileID += 1;
+    }
+
+    fileBuffer = new Buffer(req.body.contents, "base64");
+    fs.writeFileSync(filePath, fileBuffer);
+    res.sendStatus('success');
 });
 
 app.post('/logout', function(req, res) {

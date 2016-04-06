@@ -629,12 +629,49 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         	//preview.src = audioVideoWebMURL;
         	video.src = audioVideoWebMURL;
             var recordedBlob = recordRTC.getBlob();
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(recordedBlob);
+            var buffer;
+            var filename;
+            reader.onload = function(event) {
+                buffer = event.target.result;
+                alert(buffer.byteLength);
+            };
             $('#btn-save-disk').show();
             $('#btn-open-new').show();
             recordRTC.getDataURL(function(dataURL) {
-            	//window.open( recordRTC.toURL() );
-            	//recordRTC.save('abcdefg');
-            	uploadFile(dataURL);
+            	fileName = $scope.random();
+        		var files = {
+                        name: fileName + '.webm',
+                        type: 'video/webm',
+                        contents: dataURL
+                };
+                
+                $http.post('/uploadVideo',files).success(function (response) {
+        			$location.url('/record');
+        		}).error(function (err) {
+        			if(err) {
+        				alert("Error while uploading file to server and Please try again!.");
+        			}
+        		})
+            	//uploadFile(dataURL);
+            	/*
+            	var postData = {
+        				email: $rootScope.currentUser.email,
+        				media: recordedBlob,
+        				contentType: "video/webm",
+        				tempURL: ""
+        		}
+            	$http.post('/uploadVideo', postData).success(function (response) {
+    				if (response != "0") {
+    					alert("Success! Video uploaded to MongoDB User Database");
+    					//$rootScope.currentUser = response;					
+    					$location.path('/list');
+    				} else {
+    					alert("Sorry, There is a problem while storing video to database.")
+    				}
+    			})
+    			*/
             });
         });
 	};
@@ -642,12 +679,23 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 	var fileName;
 	function uploadFile(videoDataURL) {
 		fileName = $scope.random();
-		var files = {};
-        files.video = {
+		var files = {
                 name: fileName + '.webm',
                 type: 'video/webm',
                 contents: videoDataURL
         };
+        
+        $http.post('/uploadVideo',files).success(function (response) {
+			$location.url('/record');
+			//$rootScope.currentUser = undefined;
+			//$rootScope.user = undefined;
+		}).error(function (err) {
+			if(err) {
+				alert("Error while uploading file to server and Please try again!.");
+			}
+		})
+            
+        /*
         uploadContents('/upload', JSON.stringify(files), function(_fileName) {
             var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
             alert(href + 'upload/' + _fileName);
@@ -658,9 +706,9 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
             h4.innerHTML = '<a href="' + video.src + '">' + video.src + '</a>';
             document.body.appendChild(h4);
             */
-        });
+        /*});*/
 	}
-	
+	/*
     function uploadContents(url, data, callback) {
     	alert("Upload");
         var request = new XMLHttpRequest();
@@ -672,6 +720,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         request.open('POST', url);
         request.send(data);
     }
+    */
 	
 	$scope.saveDisk = function () {
 		  var fileName = $scope.random();
@@ -689,6 +738,53 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 			$rootScope.user = undefined;
 		})
 	};
+});
+
+app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
+	$scope.currentPage = 1;
+	$scope.numPerPage = 10;
+	$scope.maxSize = 5;
+	var begin = (($scope.currentPage - 1) * $scope.numPerPage)
+    , end = begin + $scope.numPerPage;
+	
+	$scope.$watch('currentPage + numPerPage', function() {
+	    begin = (($scope.currentPage - 1) * $scope.numPerPage);
+	    end = begin + $scope.numPerPage;
+	    $scope.partialQuestions = $scope.allQuestions.slice(begin, end);
+	});
+	
+	$scope.listVideos = function (currentUser){
+		$scope.searchCat = currentUser.searchCat;
+		$scope.count = 20;
+		$scope.partialVideos = [];
+		$scope.allVideos = [];
+		if(currentUser.searchCat == undefined) {
+			$scope.searchCat = $rootScope.searchCat;
+		}
+		var postData = { 
+			category : $scope.searchCat,
+			count : $scope.count
+		};
+		$http.post('/getVideos',postData).success(function (response){
+			$scope.videosList = response;
+			for(i=0;i<=$scope.videosList.length-1;i++) {
+				$scope.allVideos.push($scope.videosList[i]);
+			}
+			$scope.partialVideos = $scope.allVideos.slice(begin, end);			
+			$location.url('/list');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+    $scope.logout = function () {
+        $http.post('/logout',$rootScope.user).success(function () {
+            $location.url('/');
+            $rootScope.currentUser = undefined;
+            $rootScope.user = undefined;
+        })
+    }
 });
 
 app.controller('aboutCtrl', function ($q, $scope, $rootScope, $http, $location) {

@@ -31,6 +31,49 @@
 			<h4 style="color: #5BC0DE;">List of Videos Recorded:</h4>
 			<p style="padding: 0 50px; font-size: 16px;"></p>
 			<br>
+			<div  style="border:2px solid #5BC0DE;width:1080px;" ng-show="allVideos.length >= 0" data-ng-init="search(user)">
+			<table class="table table-striped">
+				<thead>
+				<tr style="background-color:#D3D3D3">
+					<!--<th>Number #</th>-->
+					<th>Name</th>
+					<th>Video URL</th>
+					<th>Content Type</th>
+					<th>Date Created</th>
+					<th>Delete</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr ng-repeat="video in partialVideos">
+					<td>{{user.email}}</td>
+					<td>{{user.firstName}}</td>
+					<td>{{user.lastName}}</td>
+					<td>{{user.activeIn}}</td>
+					<td><button  class="btn btn-info" ng-click="edit(user.email)">
+					<span class="glyphicon glyphicon-eye-open"></span>Delete 
+					</button></td>
+				</tr>
+				<tr ng-show="allVideos.length <= 0">
+				<td colspan="6" align="center"><h4 style="color:red">No Records Found For Your Search.</h4></td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="table" style="margin-bottom:0px">
+			<tbody>
+			<tr ng-show="partialVideos.length > 0">
+				<td></td><td></td><td></td><td></td><td></td>
+				<td align="right">
+				    <pagination 
+				      ng-model="currentPage"
+				      total-items="allVideos.length"
+				      max-size="maxSize"  
+				      boundary-links="true">
+				    </pagination>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+			</div>
 			<hr/>
 		</div>
 	</div>
