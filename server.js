@@ -130,8 +130,8 @@ passPort.use(new facebookStrategy({
 	  callbackURL: config.facebook.callbackURL
   },function(token, refreshToken, profile, done) {	      
 	      console.log("Facebook Username "+profile.username);
-	      console.log("Facebook email "+profile.emails[0].value);
-          userModel.findOne({email:profile.emails.value}, function(err, user) {
+	      console.log("Facebook email "+profile.email);
+          userModel.findOne({email:profile.email}, function(err, user) {
         	  console.log("Hello");
               if (err) {
             	  console.debug("err"+err);
