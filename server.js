@@ -127,11 +127,13 @@ passPort.deserializeUser(function(user, done) {
 passPort.use(new facebookStrategy({
 	clientID: config.facebook.clientID,
 	  clientSecret: config.facebook.clientSecret,
-	  callbackURL: config.facebook.callbackURL
+	  callbackURL: config.facebook.callbackURL,
+	  passReqToCallback : true,
+      profileFields: ['id', 'emails', 'name']
   },function(token, refreshToken, profile, done) {	      
 	      console.log("Facebook Username "+profile.username);
-	      console.log("Facebook email "+profile.email);
-          userModel.findOne({email:profile.email}, function(err, user) {
+	      console.log("Facebook email "+profile.emails[0].value);
+          userModel.findOne({email:profile.emails[0].value}, function(err, user) {
         	  console.log("Hello");
               if (err) {
             	  console.debug("err"+err);
@@ -300,7 +302,7 @@ app.post('/login', passPort.authenticate('local'),function(req, res) {
 	res.json(user);
 });
 
-app.get('/auth/facebook', passPort.authenticate('facebook'), function(req, res, next){
+app.get('/auth/facebook', passPort.authenticate('facebook',{ scope : ['email'] }), function(req, res, next){
 	var user = req.user;
 	res.json(user);
 });
