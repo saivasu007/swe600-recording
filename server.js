@@ -347,18 +347,20 @@ app.post('/uploadStream', function(req, res) {
 			  "content_type": "video/webm",
 			  "metadata":{
 			      "author": "SrinivasT"
-			  },
-			  "chunk_size": 1024*4
+			  }
 			  });
 		  gridStore.open(function(err, gridStore) {
+			var stream = gridStore.stream(true);
 		    gridStore.write(req.body.contents, function(err, gridStore) {
 		      gridStore.close(function(err, result) {
 		      });
+		      stream.on("end", function(err) {
+		    	  db.close();
+		      });
 		   });
 		  });
-		  db.close();
+		  console.log("Finished stream upload to MongoDB");
 		});
-	console.log("Finished stream upload to MongoDB");
 	res.sendStatus(200);
 });
 
@@ -398,6 +400,68 @@ app.get('/loggedin', function(req, res) {
 	} else {
 		res.send("0");
 	}
+});
+
+app.post('/getVideos', function(req, res) {
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		db.collection('fs.files')
+		  .find()
+		  .toArray(function(err, files) {
+		    if (err) throw err;
+		    files.forEach(function(file) {
+		      console.log(file);
+		    });
+		    res.send(files);
+		  });
+   });
+});
+
+app.post('/viewStream', function(req, res) {
+	console.log("Getting stream from MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, req.body.name,"r");
+		  gridStore.open(function(err, gridStore) {
+			var stream = gridStore.stream(true);
+		    gridStore.read(function(err, dataURL) {
+		    	res.send(dataURL);
+		   });
+		   stream.on("end", function(err) {
+		       db.close();
+		   });
+		  });
+		  console.log("Finished stream retrieval from MongoDB");
+		});
+});
+
+app.post('/delStream', function(req, res) {
+	console.log("Started removing selected stream from MongoDB");
+	MongoClient.connect(mongodbUrl, function(err, db) {
+		  var gridStore = new GridStore(db, req.body.name,"w");
+		  gridStore.open(function(err, gridStore) {
+			  var stream = gridStore.stream(true);
+			  gridStore.unlink(db, req.body.name, function(err, gridStore) {
+				   /*
+			        // Verify that fs.files document is gone
+			        db.collection('fs.files', function(err, collection) {
+			          collection.count(function(err, count) {
+			            console.log("file store records after delete "+count);
+			          })
+			        });
+			        // Verify that fs.chunks chunk documents are gone
+			        db.collection('fs.chunks', function(err, collection) {
+			          collection.count(function(err, count) {
+			        	  console.log("file chunks records after delete "+count);
+			          })
+			        });
+			        */
+				  stream.on("end", function(err) {
+				       db.close();
+				   });
+				});
+		  });
+		  console.log("Successfully removed stream from MongoDB.");
+		});
+		res.sendStatus(200);
 });
 
 //Added for Forgot Password functionality.

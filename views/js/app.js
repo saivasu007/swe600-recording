@@ -648,7 +648,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
                 };
                 
         		$http.post('/uploadStream',files).success(function (response) {
-        			alert("Upload to MongoDB :: Success");
+        			alert("Upload stream to MongoDB :: Success");
         		}).error(function (err) {
         			if(err) {
         				alert("Error while uploading to MongoDB and Please try again!.");
@@ -735,18 +735,15 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
 	    $scope.partialQuestions = $scope.allQuestions.slice(begin, end);
 	});
 	
-	$scope.listVideos = function (currentUser){
-		$scope.searchCat = currentUser.searchCat;
+	$scope.listVideos = function (){
 		$scope.count = 20;
 		$scope.partialVideos = [];
 		$scope.allVideos = [];
-		if(currentUser.searchCat == undefined) {
-			$scope.searchCat = $rootScope.searchCat;
-		}
+		
 		var postData = { 
-			category : $scope.searchCat,
 			count : $scope.count
 		};
+		
 		$http.post('/getVideos',postData).success(function (response){
 			$scope.videosList = response;
 			for(i=0;i<=$scope.videosList.length-1;i++) {
@@ -759,6 +756,41 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
 			console.log(err);
 		})
 	};
+	
+	$scope.viewStream = function (video){
+		var videoInfo = { 
+			id:video._id,
+			name:video.filename
+		}
+			
+		$http.post('/viewStream', videoInfo).success(function (response){
+			$('#videoPreview').src = response;
+			$('#videoPreview').onloadedmetadata = function(e) {
+				$('#videoPreview').play();
+			};
+			$location.url('/preview');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	};
+	
+	$scope.delStream = function (video){
+		var videoInfo = { 
+				id:video._id,
+				name:video.filename
+		}
+	if(confirm('Are you sure you want you delete this video recording?')) {
+		$http.post('/delStream', videoInfo).success(function (response){
+			alert("Delete Stream :: Success");
+			$scope.listVideos();
+			$location.url('/list');
+		}).error(function (err) {
+			alert("Error!");
+			console.log(err);
+		})
+	}
+    }; 
 	
     $scope.logout = function () {
         $http.post('/logout',$rootScope.user).success(function () {
@@ -963,7 +995,14 @@ app.config(function ($routeProvider, $httpProvider, $locationProvider) {
 		}).
 		when('/list', {
 			templateUrl: 'partials/videos.html',
-			controller: 'homeCtrl',
+			controller: 'videoCtrl',
+			resolve: {
+				loggedin: checkLoggedIn
+			}
+		}).
+		when('/preview', {
+			templateUrl: 'partials/preview.html',
+			controller: 'videoCtrl',
 			resolve: {
 				loggedin: checkLoggedIn
 			}

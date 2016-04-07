@@ -31,19 +31,20 @@
 			<hr>
 			<div style="text-align: center">
 			        <div>
-			            <button id="btn-start-recording" ng-click="record()" ng-disabled="disable" class="btn btn-info">Start Recording</button>
-			            <button id="btn-stop-recording" ng-disabled="disableStop" ng-click="stopRecord()" class="btn btn-warning">Stop Recording</button>
+			            <h4>Video Preview:</h4>
 			        </div>
 			        <br/>
 					<div style="border-style:double;border-width:4px;border-color:#5BC0DE;width:610px;height:458px;margin-left: auto;margin-right: auto;">
 					<p>
-            			<video style="background:#000" preload="auto" poster="" width="600" height="450" controls=""></video>
+            			<video id="videoPreview" style="background:#000" preload="auto" poster="" width="600" height="450" controls=""></video>
         			</p>
         			</div>
         			<br/>
         			<p>
-        			<button id="btn-save-disk" ng-click="saveDisk()" class="btn btn-info">Save To Disk</button>
-			            <button id="btn-open-new" ng-click="openNew()" class="btn btn-info">Open New Tab</button>
+        			<a href="/list"><button class="btn btn-info">Back To Videos</button></a>
+        			<button  class="btn btn-warning" ng-click="delStream(video)">
+					<span class="glyphicon glyphicon-remove-sign"></span>Delete 
+					</button>
         			</p>
         			<!-- 
         			<div id="preview" style="border-style:double;border-width:4px;border-color:#5BC0DE;width:610px;height:458px;margin-left: auto;margin-right: auto;">
