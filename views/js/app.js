@@ -667,23 +667,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
         			}
         		})
             	//uploadFile(dataURL);
-            	/*
-            	var postData = {
-        				email: $rootScope.currentUser.email,
-        				media: recordedBlob,
-        				contentType: "video/webm",
-        				tempURL: ""
-        		}
-            	$http.post('/uploadVideo', postData).success(function (response) {
-    				if (response != "0") {
-    					alert("Success! Video uploaded to MongoDB User Database");
-    					//$rootScope.currentUser = response;					
-    					$location.path('/list');
-    				} else {
-    					alert("Sorry, There is a problem while storing video to database.")
-    				}
-    			})
-    			*/
             });
         });
 	};
@@ -718,11 +701,22 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 	};
 
 	$scope.logout = function () {
-		$http.post('/logout',$rootScope.user).success(function () {
-			$location.url('/');
-			$rootScope.currentUser = undefined;
-			$rootScope.user = undefined;
-		})
+		var token = $scope.currentUser.accessToken;
+		if($scope.currentUser.authType == "facebook") {
+				window.location.href = "https://www.facebook.com/logout.php?next=http://localhost:1337/logout&access_token="+token;
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+		} if($scope.currentUser.authType == "google") {
+				window.location.href("https://accounts.google.com/logout?continue=https://appengine.google.com/_ah/logout?continue="+location.host()+":"+location.port()+"/login");
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+		} else {
+			$http.post('/logout',$rootScope.user).success(function () {
+				$location.url('/');
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+			})
+		}
 	};
 });
 
@@ -791,12 +785,23 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
     }; 
 	
     $scope.logout = function () {
-        $http.post('/logout',$rootScope.user).success(function () {
-            $location.url('/');
-            $rootScope.currentUser = undefined;
-            $rootScope.user = undefined;
-        })
-    }
+		var token = $scope.currentUser.accessToken;
+		if($scope.currentUser.authType == "facebook") {
+				window.location.href = "https://www.facebook.com/logout.php?next=http://localhost:1337/logout&access_token="+token;
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+		} if($scope.currentUser.authType == "google") {
+				window.location.href("https://accounts.google.com/logout?continue=https://appengine.google.com/_ah/logout?continue="+location.host()+":"+location.port()+"/login");
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+		} else {
+			$http.post('/logout',$rootScope.user).success(function () {
+				$location.url('/');
+				$rootScope.currentUser = undefined;
+				$rootScope.user = undefined;
+			})
+		}
+	};
 });
 
 app.controller('aboutCtrl', function ($q, $scope, $rootScope, $http, $location) {

@@ -141,6 +141,7 @@ passPort.use(new facebookStrategy({
               }
               if (user) {
             	  console.log("User exists in application");
+            	  console.log(user);
                   return done(null, user); // If user found then return the same user.
               } else {
                   // if there is no user found in the application with that facebook user-id then create them.
@@ -153,6 +154,7 @@ passPort.use(new facebookStrategy({
                   newUser.activeIn = "Y";
                   newUser.subscriber = "No";
                   newUser.authType = "facebook";
+                  newUser.accessToken = token;
                   console.log("Before saving user info");
                   // save our user to the database
                   newUser.save(function(err) {
@@ -206,7 +208,8 @@ passPort.use(new LinkedinStrategy({
 	  clientID: config.linkedin.consumerKey,
 	  clientSecret: config.linkedin.consumerSecret,
 	  callbackURL: config.linkedin.callbackURL,
-	  scope: config.linkedin.scope
+	  scope: config.linkedin.scope,
+	  state: true
 	  },
 	  function(accessToken, refreshToken, profile, done) {
 	    userModel.findOne({ email: profile.emails[0].value }, function(err, user) {
@@ -346,7 +349,7 @@ app.post('/uploadStream', function(req, res) {
 		  var gridStore = new GridStore(db, new ObjectID(),req.user.firstName+"_"+req.body.name, "w",{
 			  "content_type": "video/webm",
 			  "metadata":{
-			      "author": "SrinivasT"
+			      "author": req.user.lastName
 			  }
 			  });
 		  gridStore.open(function(err, gridStore) {

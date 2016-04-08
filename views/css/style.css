@@ -11,6 +11,9 @@
     padding-top: 40px;
     float:left;   
 }
+.space_line { 
+	line-height:0.7 
+}
 .right-box {
     max-width: 400px;
     z-index: 100;
