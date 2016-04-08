@@ -74,6 +74,12 @@ app.controller('DatepickerCtrl', function ($scope) {
 		  };
 });
 
+app.filter("trustUrl", ['$sce', function ($sce) {
+    return function (recordingUrl) {
+        return $sce.trustAsResourceUrl(recordingUrl);
+    };
+}]);
+
 app.controller('indexCtrl', function($scope, ObserverService, $location, $anchorScroll) {
 	$scope.gototop = function() {
 		$location.hash('top');
@@ -611,7 +617,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 		    recordRTC.startRecording();
 			},
 			function(err) {
-			alert("error "+err);
 			console.log("The following error occurred: " + err.name);
 			}
 			);
@@ -635,7 +640,6 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
             var filename;
             reader.onload = function(event) {
                 buffer = event.target.result;
-                alert(buffer.byteLength);
             };
             $('#btn-save-disk').show();
             $('#btn-open-new').show();
@@ -752,7 +756,6 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
 			$scope.partialVideos = $scope.allVideos.slice(begin, end);			
 			$location.url('/list');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -764,13 +767,9 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
 		}
 			
 		$http.post('/viewStream', videoInfo).success(function (response){
-			$('#videoPreview').src = response;
-			$('#videoPreview').onloadedmetadata = function(e) {
-				$('#videoPreview').play();
-			};
+			$rootScope.dataUrl = response;
 			$location.url('/preview');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	};
@@ -786,7 +785,6 @@ app.controller('videoCtrl', function ($scope, $http, $location, $rootScope){
 			$scope.listVideos();
 			$location.url('/list');
 		}).error(function (err) {
-			alert("Error!");
 			console.log(err);
 		})
 	}

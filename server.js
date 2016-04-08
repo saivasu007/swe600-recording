@@ -440,20 +440,6 @@ app.post('/delStream', function(req, res) {
 		  gridStore.open(function(err, gridStore) {
 			  var stream = gridStore.stream(true);
 			  gridStore.unlink(db, req.body.name, function(err, gridStore) {
-				   /*
-			        // Verify that fs.files document is gone
-			        db.collection('fs.files', function(err, collection) {
-			          collection.count(function(err, count) {
-			            console.log("file store records after delete "+count);
-			          })
-			        });
-			        // Verify that fs.chunks chunk documents are gone
-			        db.collection('fs.chunks', function(err, collection) {
-			          collection.count(function(err, count) {
-			        	  console.log("file chunks records after delete "+count);
-			          })
-			        });
-			        */
 				  stream.on("end", function(err) {
 				       db.close();
 				   });
