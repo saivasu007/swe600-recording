@@ -208,8 +208,7 @@ passPort.use(new LinkedinStrategy({
 	  clientID: config.linkedin.consumerKey,
 	  clientSecret: config.linkedin.consumerSecret,
 	  callbackURL: config.linkedin.callbackURL,
-	  scope: config.linkedin.scope,
-	  state: true
+	  scope: config.linkedin.scope
 	  },
 	  function(accessToken, refreshToken, profile, done) {
 	    userModel.findOne({ email: profile.emails[0].value }, function(err, user) {
