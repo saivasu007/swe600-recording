@@ -54,6 +54,8 @@ var pwdResetSubject = properties.get("app.email.subjectResetPwd");
 var resetPwdTemplate = properties.get("app.email.resetPwdTem");
 var resetConfirmSubject = properties.get("app.email.subjectConfirmResetPwd");
 var resetConfirmTemplate = properties.get("app.email.resetConfirmTem");
+//For UML
+var plantuml = require('node-plantuml');
 
 function encrypt(pass){
 	  var cipher = crypto.createCipher('aes-256-cbc','d6F3Efeq')
@@ -91,6 +93,9 @@ app.use(session({
 }));
 app.use(passPort.initialize());
 app.use(passPort.session());
+
+var gen = plantuml.generate("app.js");
+gen.out.pipe(fs.createWriteStream("swe600-recording.jpg"));
 
 // passport config
 passPort.use(new localStrategy({

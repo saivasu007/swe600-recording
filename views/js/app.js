@@ -707,7 +707,7 @@ app.controller('homeCtrl', function ($q, $scope, $rootScope, $http, $location, $
 				$rootScope.currentUser = undefined;
 				$rootScope.user = undefined;
 		} if($scope.currentUser.authType == "google") {
-				window.location.href("https://accounts.google.com/logout?continue=https://appengine.google.com/_ah/logout?continue="+location.host()+":"+location.port()+"/login");
+				window.location.href = "https://accounts.google.com/logout?continue=https://appengine.google.com/_ah/logout?continue="+$location.protocol()+"://"+$location.host()+":"+$location.port()+"/";
 				$rootScope.currentUser = undefined;
 				$rootScope.user = undefined;
 		} else {
