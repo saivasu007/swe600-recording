@@ -60,7 +60,7 @@ function encrypt(pass){
 	  var crypted = cipher.update(pass,'utf8','hex')
 	  crypted += cipher.final('hex');
 	  return crypted;
-	}
+}
 
 function decrypt(pass){
 	  var decipher = crypto.createDecipher('aes-256-cbc','d6F3Efeq')
@@ -451,6 +451,36 @@ app.post('/delStream', function(req, res) {
 		  console.log("Successfully removed stream from MongoDB.");
 		});
 		res.sendStatus(200);
+});
+
+//Added for User Profile Update functionality.
+app.post('/updateProfile', function(req, res) {
+	userModel.findOne({
+		email : req.body.email
+	}, function(err, result) {
+		if (result && result.email) {
+			userModel.update({
+				email : req.body.email
+			}, {
+				firstName : req.body.firstName,
+				lastName : req.body.lastName,
+				address1 : req.body.address1,
+				address2 : req.body.address2,
+				city : req.body.city,
+				state : req.body.state,
+				zipcode : req.body.zipcode,
+				birthDate : req.body.birthDate
+			}, false, function(err, num) {
+				if (num.ok = 1) {
+					console.log('success');
+					res.send('success')
+				} else {
+					console.log('error');
+					res.send('error')
+				}
+			})
+		}
+	})
 });
 
 //Added for Forgot Password functionality.
